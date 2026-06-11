@@ -1,0 +1,5 @@
+git init
+git remote add origin https://github.com/sergiouran-lgtm/hsantos-comercial.git
+git add .
+git commit -m "Primeiro commit - Hsantos Comercial"
+git push origin main
