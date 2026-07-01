@@ -32,8 +32,11 @@ export default function PlanScreen({ store }: { store: CaminhoLivreStore }) {
   return (
     <div className="flex h-full flex-col">
       <div className="px-6 pt-8">
+        <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-[rgba(var(--gold-rgb),0.35)] bg-[rgba(var(--gold-rgb),0.14)] px-3 py-1.5 text-[12.5px] font-bold uppercase tracking-wide text-gold">
+          {tr.betaBanner}
+        </div>
         <h1 className="m-0 font-display text-[22px] font-bold text-text">{tr.choosePlanTitle}</h1>
-        <p className="my-1.5 mb-5 text-[13px] text-muted">{tr.choosePlanSub}</p>
+        <p className="my-1.5 mb-5 text-[14.5px] text-muted">{tr.choosePlanSub}</p>
       </div>
       <div className="flex flex-1 flex-col gap-3 overflow-auto px-6">
         {plans.map((p) => {
@@ -47,14 +50,14 @@ export default function PlanScreen({ store }: { store: CaminhoLivreStore }) {
               }`}
             >
               <div className="flex items-center justify-between gap-2">
-                <div className="font-display text-base font-bold text-text">{p.name}</div>
+                <div className="font-display text-lg font-bold text-text">{p.name}</div>
                 {p.badge && (
-                  <div className="whitespace-nowrap rounded-full bg-gold px-2.5 py-1 text-[10.5px] font-bold text-[#0D1311]">{p.badge}</div>
+                  <div className="whitespace-nowrap rounded-full bg-gold px-2.5 py-1 text-[12.5px] font-bold text-[#0D1311]">{p.badge}</div>
                 )}
               </div>
               <div className="mt-2">
-                <span className="font-display text-[21px] font-bold text-accent">{p.price}</span>
-                <span className="text-xs text-muted"> {p.sub}</span>
+                <span className="font-display text-[22px] font-bold text-accent">{p.price}</span>
+                <span className="text-sm text-muted"> {p.sub}</span>
               </div>
             </div>
           );

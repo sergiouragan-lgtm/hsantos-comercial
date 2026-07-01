@@ -124,4 +124,6 @@ export const CRM_STATUS_ORDER: readonly ("contact" | "negotiating" | "agreed" | 
 export const BUCKET_PCTS = [0.55, 0.3, 0.1, 0.05];
 export const BUCKET_COLORS = ["accent", "orange", "blue", "purple"] as const;
 
-export const STORAGE_KEY = "caminholivre_state_v1";
+// Bump this whenever the persisted shape or onboarding flow changes materially,
+// so testers with stale localStorage from an earlier build start fresh automatically.
+export const STORAGE_KEY = "caminholivre_state_v2";

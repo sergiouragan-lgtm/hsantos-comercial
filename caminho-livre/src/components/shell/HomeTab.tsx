@@ -12,16 +12,15 @@ export default function HomeTab({ store }: { store: CaminhoLivreStore }) {
   const progressPct = stats.totalDebt > 0 ? Math.min((stats.freeCash * 6) / stats.totalDebt, 1) : 0;
   const arcDashArray = `${(c * progressPct).toFixed(1)} ${c.toFixed(1)}`;
   const arcPctLabel = stats.totalDebt > 0 ? `${Math.round(progressPct * 100)}%` : "—";
-  const nameOrDefault = state.name || "Beatriz";
   const focusMonthsLabel = monthsLabel(stats.sim.months, tr);
 
   return (
     <div>
       <div className="flex items-center justify-between px-5.5 pt-5">
         <div>
-          <div className="text-[10px] font-bold uppercase tracking-[1.4px] text-accent">{tr.todayPlan}</div>
+          <div className="text-[12px] font-bold uppercase tracking-[1.4px] text-accent">{tr.todayPlan}</div>
           <div className="mt-1 font-display text-lg font-bold text-text">
-            {tr.greeting}, {nameOrDefault}
+            {tr.greeting}, {state.name}
           </div>
         </div>
         <div className="flex h-9 w-9 items-center justify-center rounded-[11px] border border-[rgba(var(--border-rgb),0.12)] bg-card">
@@ -64,8 +63,8 @@ export default function HomeTab({ store }: { store: CaminhoLivreStore }) {
             {tr.alreadyPlanned}
           </text>
         </svg>
-        <div className="mt-1 font-display text-[19px] font-bold text-text">{focusMonthsLabel}</div>
-        <div className="mt-0.5 text-xs text-muted">{tr.untilLastDebt}</div>
+        <div className="mt-1 font-display text-[20px] font-bold text-text">{focusMonthsLabel}</div>
+        <div className="mt-0.5 text-sm text-muted">{tr.untilLastDebt}</div>
       </div>
 
       <div className="mx-5.5 mt-3.5 flex items-center gap-2 rounded-xl border border-[rgba(var(--gold-rgb),0.35)] bg-[rgba(var(--gold-rgb),0.12)] px-3.5 py-2.5">
@@ -75,25 +74,25 @@ export default function HomeTab({ store }: { store: CaminhoLivreStore }) {
             fill="var(--gold)"
           />
         </svg>
-        <div className="text-xs font-semibold text-text">
+        <div className="text-sm font-semibold text-text">
           {state.streak} {tr.streakLabel}
         </div>
       </div>
 
       <div className="mx-5.5 mt-3.5 flex gap-2.5">
         <div className="flex-1 rounded-2xl border border-[rgba(var(--border-rgb),0.08)] bg-card p-3.5">
-          <div className="text-[10px] uppercase tracking-wide text-muted">{tr.totalDebt}</div>
-          <div className="mt-1 font-display text-[17px] font-bold text-orange">{money(stats.totalDebt)}</div>
+          <div className="text-[12px] font-semibold uppercase tracking-wide text-muted">{tr.totalDebt}</div>
+          <div className="mt-1 font-display text-[18px] font-bold text-orange">{money(stats.totalDebt)}</div>
         </div>
         <div className="flex-1 rounded-2xl border border-[rgba(var(--border-rgb),0.08)] bg-card p-3.5">
-          <div className="text-[10px] uppercase tracking-wide text-muted">{tr.freeThisMonth}</div>
-          <div className="mt-1 font-display text-[17px] font-bold text-accent">{money(stats.freeCash)}</div>
+          <div className="text-[12px] font-semibold uppercase tracking-wide text-muted">{tr.freeThisMonth}</div>
+          <div className="mt-1 font-display text-[18px] font-bold text-accent">{money(stats.freeCash)}</div>
         </div>
       </div>
 
       <div
         onClick={actions.markMonthDone}
-        className="mx-5.5 mt-3.5 cursor-pointer rounded-2xl border border-[rgba(var(--accent-rgb),0.3)] px-4 py-4 text-center text-[13px] font-bold text-accent"
+        className="mx-5.5 mt-3.5 cursor-pointer rounded-2xl border border-[rgba(var(--accent-rgb),0.3)] px-4 py-4 text-center text-[14.5px] font-bold text-accent"
         style={{ background: "linear-gradient(135deg,rgba(var(--accent-rgb),.16),rgba(var(--accent-rgb),.04))" }}
       >
         {tr.markMonthDone}
@@ -104,8 +103,8 @@ export default function HomeTab({ store }: { store: CaminhoLivreStore }) {
         className="mx-5.5 mb-4.5 mt-2.5 flex cursor-pointer items-center justify-between rounded-2xl border border-[rgba(var(--border-rgb),0.08)] bg-card p-4"
       >
         <div>
-          <div className="text-[13px] font-bold text-text">{tr.needAdvice}</div>
-          <div className="mt-0.5 text-[11px] text-muted">{tr.talkToAssistant}</div>
+          <div className="text-[14.5px] font-bold text-text">{tr.needAdvice}</div>
+          <div className="mt-0.5 text-[13px] text-muted">{tr.talkToAssistant}</div>
         </div>
         <ChevronRight />
       </div>

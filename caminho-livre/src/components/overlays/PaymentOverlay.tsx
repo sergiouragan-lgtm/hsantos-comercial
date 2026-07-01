@@ -15,7 +15,7 @@ export default function PaymentOverlay({ store }: { store: CaminhoLivreStore }) 
               <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(var(--border-rgb),.12)" strokeWidth={4} />
               <circle cx="22" cy="22" r="18" fill="none" stroke="var(--accent)" strokeWidth={4} strokeLinecap="round" strokeDasharray="70 113" />
             </svg>
-            <div className="mt-4 text-[13px] text-muted">{tr.paymentProcessing}</div>
+            <div className="mt-4 text-[14.5px] text-muted">{tr.paymentProcessing}</div>
           </div>
         )}
 
@@ -26,11 +26,11 @@ export default function PaymentOverlay({ store }: { store: CaminhoLivreStore }) 
                 <path d="M5 13l5 5L19 7" stroke="var(--accent)" strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
-            <div className="font-display text-[19px] font-bold text-text">{tr.paymentApprovedTitle}</div>
-            <div className="mt-2 text-[12.5px] leading-relaxed text-muted">{tr.paymentApprovedMsg}</div>
+            <div className="font-display text-[20px] font-bold text-text">{tr.paymentApprovedTitle}</div>
+            <div className="mt-2 text-[14.5px] leading-relaxed text-muted">{tr.paymentApprovedMsg}</div>
             <div
               onClick={actions.proceedAfterApproval}
-              className="mt-4.5 cursor-pointer rounded-[11px] bg-accent py-2.5 text-[13px] font-bold text-[#0D1311]"
+              className="mt-4.5 cursor-pointer rounded-[11px] bg-accent py-2.5 text-[14.5px] font-bold text-[#0D1311]"
             >
               {tr.continueBtn}
             </div>
@@ -44,11 +44,11 @@ export default function PaymentOverlay({ store }: { store: CaminhoLivreStore }) 
                 <path d="M6 6l12 12M18 6L6 18" stroke="var(--orange)" strokeWidth={2.6} strokeLinecap="round" />
               </svg>
             </div>
-            <div className="font-display text-[19px] font-bold text-text">{tr.paymentDeclinedTitle}</div>
-            <div className="mt-2 text-[12.5px] leading-relaxed text-muted">{tr.paymentDeclinedMsg}</div>
+            <div className="font-display text-[20px] font-bold text-text">{tr.paymentDeclinedTitle}</div>
+            <div className="mt-2 text-[14.5px] leading-relaxed text-muted">{tr.paymentDeclinedMsg}</div>
             <div
               onClick={actions.retryPayment}
-              className="mt-4.5 cursor-pointer rounded-[11px] border border-[rgba(var(--orange-rgb),0.4)] bg-[rgba(var(--orange-rgb),0.15)] py-2.5 text-[13px] font-bold text-orange"
+              className="mt-4.5 cursor-pointer rounded-[11px] border border-[rgba(var(--orange-rgb),0.4)] bg-[rgba(var(--orange-rgb),0.15)] py-2.5 text-[14.5px] font-bold text-orange"
             >
               {tr.tryAgainBtn}
             </div>

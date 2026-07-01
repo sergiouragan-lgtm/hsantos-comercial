@@ -7,6 +7,7 @@ export interface FaqItem {
 
 export const TR = {
     pt: {
+      betaBanner:"Versão BETA para testes",
       tagline:"O teu plano para sair das dívidas", welcomeBack:"Bem-vindo de volta", loginSub:"Entra para continuares o teu plano, passo a passo.",
       phoneLabel:"Número de telemóvel", passwordLabel:"Password", forgotPassword:"Esqueceste-te da password?", enterBtn:"Entrar", orWord:"ou",
       createAccount:"Criar conta nova", dataPrivacy:"Os teus dados ficam só neste aparelho.", nameLabel:"Nome", signupTitle:"Criar a tua conta",
@@ -70,6 +71,7 @@ export const TR = {
       notifNotSupported:"Notificações não suportadas."
     },
     en: {
+      betaBanner:"BETA version for testing",
       tagline:"Your plan to get out of debt", welcomeBack:"Welcome back", loginSub:"Log in to keep going with your plan, step by step.",
       phoneLabel:"Phone number", passwordLabel:"Password", forgotPassword:"Forgot your password?", enterBtn:"Log in", orWord:"or",
       createAccount:"Create new account", dataPrivacy:"Your data stays only on this device.", nameLabel:"Name", signupTitle:"Create your account",
@@ -133,6 +135,7 @@ export const TR = {
       notifNotSupported:"Notifications not supported."
     },
     fr: {
+      betaBanner:"Version BÊTA pour les tests",
       tagline:"Ton plan pour sortir des dettes", welcomeBack:"Content de te revoir", loginSub:"Connecte-toi pour continuer ton plan, étape par étape.",
       phoneLabel:"Numéro de téléphone", passwordLabel:"Mot de passe", forgotPassword:"Mot de passe oublié ?", enterBtn:"Se connecter", orWord:"ou",
       createAccount:"Créer un nouveau compte", dataPrivacy:"Tes données restent uniquement sur cet appareil.", nameLabel:"Nom", signupTitle:"Crée ton compte",
@@ -196,6 +199,7 @@ export const TR = {
       notifNotSupported:"Notifications non prises en charge."
     },
     ar: {
+      betaBanner:"نسخة تجريبية (بيتا) للاختبار",
       tagline:"خطتك للتخلص من الديون", welcomeBack:"مرحبًا بعودتك", loginSub:"سجّل الدخول لمتابعة خطتك خطوة بخطوة.",
       phoneLabel:"رقم الهاتف", passwordLabel:"كلمة المرور", forgotPassword:"هل نسيت كلمة المرور؟", enterBtn:"دخول", orWord:"أو",
       createAccount:"إنشاء حساب جديد", dataPrivacy:"تبقى بياناتك على هذا الجهاز فقط.", nameLabel:"الاسم", signupTitle:"أنشئ حسابك",
@@ -259,6 +263,7 @@ export const TR = {
       notifNotSupported:"الإشعارات غير مدعومة."
     },
     zu: {
+      betaBanner:"Inguqulo ye-BETA yokuhlolwa",
       tagline:"Uhlelo lwakho lokuphuma ezikweletini", welcomeBack:"Siyakwamukela futhi", loginSub:"Ngena ukuze uqhubeke nohlelo lwakho, isinyathelo ngesinyathelo.",
       phoneLabel:"Inombolo yocingo", passwordLabel:"Iphasiwedi", forgotPassword:"Ukhohlwe iphasiwedi?", enterBtn:"Ngena", orWord:"noma",
       createAccount:"Yakha i-akhawunti entsha", dataPrivacy:"Idatha yakho ihlala kule divayisi kuphela.", nameLabel:"Igama", signupTitle:"Yakha i-akhawunti yakho",
@@ -322,6 +327,7 @@ export const TR = {
       notifNotSupported:"Izaziso azisekelwe."
     },
     ha: {
+      betaBanner:"Sigar BETA don gwaji",
       tagline:"Tsarinka na fita daga bashi", welcomeBack:"Barka da dawowa", loginSub:"Shiga don ci gaba da tsarinka, mataki-mataki.",
       phoneLabel:"Lambar waya", passwordLabel:"Kalmar sirri", forgotPassword:"Ka manta kalmar sirri?", enterBtn:"Shiga", orWord:"ko",
       createAccount:"Kirkiri sabon asusu", dataPrivacy:"Bayananka suna zama a wannan na'ura kadai.", nameLabel:"Suna", signupTitle:"Kirkiri asusunka",

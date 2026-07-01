@@ -95,14 +95,14 @@ export function useCaminhoLivre() {
   // ---- auth / onboarding ----
   const setPhone = (v: string) => update({ phone: v, loginError: false, signupError: false });
   const setPassword = (v: string) => update({ password: v, loginError: false, signupError: false });
-  const setName = (v: string) => update({ name: v, signupError: false });
+  const setName = (v: string) => update({ name: v, signupError: false, loginError: false });
 
   const doLogin = () => {
-    if (!state.phone || !state.password) {
+    if (!state.name || !state.phone || !state.password) {
       update({ loginError: true });
       return;
     }
-    updateAndPersist({ authed: true, screen: "app", loginError: false });
+    updateAndPersist({ screen: "plan", loginError: false });
   };
   const goSignup = () => update({ screen: "signup", signupError: false });
   const goLogin = () => update({ screen: "login", loginError: false });
@@ -114,7 +114,8 @@ export function useCaminhoLivre() {
     update({ screen: "plan", signupError: false });
   };
   const choosePlan = (p: PlanCode) => update({ selectedPlan: p });
-  const planContinue = () => update({ screen: "payment" });
+  // Beta: payment/activation are skipped for now, plan selection goes straight into the app.
+  const planContinue = () => updateAndPersist({ authed: true, screen: "app" });
   const choosePayment = (p: PaymentMethod) => update({ selectedPayment: p });
   const confirmPayment = () => {
     update({ paymentStatus: "processing" });

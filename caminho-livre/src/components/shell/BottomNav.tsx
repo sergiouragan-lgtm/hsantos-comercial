@@ -73,7 +73,7 @@ export default function BottomNav({ store }: { store: CaminhoLivreStore }) {
             style={{ color: active ? "var(--accent)" : "var(--text-muted)" }}
           >
             {ICONS[item.tab]}
-            <div className="text-[9.5px] font-semibold">{item.label}</div>
+            <div className="text-[11.5px] font-semibold">{item.label}</div>
           </div>
         );
       })}

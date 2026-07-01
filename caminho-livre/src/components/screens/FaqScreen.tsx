@@ -12,7 +12,7 @@ export default function FaqScreen({ store }: { store: CaminhoLivreStore }) {
         <BackChevron onClick={actions.backFromFaq} />
         <div>
           <div className="font-display text-lg font-bold text-text">{tr.faqTitle}</div>
-          <div className="mt-0.5 text-[11.5px] text-muted">{tr.faqSub}</div>
+          <div className="mt-0.5 text-[13.5px] text-muted">{tr.faqSub}</div>
         </div>
       </div>
       <div className="flex-1 overflow-auto px-5.5 pb-6 pt-4.5">
@@ -25,7 +25,7 @@ export default function FaqScreen({ store }: { store: CaminhoLivreStore }) {
               className="mb-2.5 cursor-pointer rounded-2xl border border-[rgba(var(--border-rgb),0.08)] bg-card px-4 py-3.5"
             >
               <div className="flex items-center justify-between gap-2.5">
-                <div className="text-[13.5px] font-semibold text-text">{item.q}</div>
+                <div className="text-[15px] font-semibold text-text">{item.q}</div>
                 <svg
                   width="14"
                   height="14"
@@ -37,7 +37,7 @@ export default function FaqScreen({ store }: { store: CaminhoLivreStore }) {
                   <path d="M9 5l7 7-7 7" stroke="var(--accent)" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
-              {isOpen && <div className="mt-2.5 text-[12.5px] leading-relaxed text-muted">{item.a}</div>}
+              {isOpen && <div className="mt-2.5 text-[14.5px] leading-relaxed text-muted">{item.a}</div>}
             </div>
           );
         })}

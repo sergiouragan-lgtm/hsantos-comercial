@@ -30,12 +30,12 @@ export default function PaymentScreen({ store }: { store: CaminhoLivreStore }) {
         }`}
       >
         <div
-          className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[10px] text-xs font-bold text-[#0D1311]"
+          className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[10px] text-sm font-bold text-[#0D1311]"
           style={{ background: COLOR_VAR[pm.color] }}
         >
           {pm.mono}
         </div>
-        <div className="flex-1 text-sm font-semibold text-text">{pm.name}</div>
+        <div className="flex-1 text-base font-semibold text-text">{pm.name}</div>
         <div
           className="h-4 w-4 shrink-0 rounded-full"
           style={active ? { border: "5px solid var(--accent)" } : { border: "1px solid rgba(var(--border-rgb),.25)" }}
@@ -48,12 +48,12 @@ export default function PaymentScreen({ store }: { store: CaminhoLivreStore }) {
     <div className="flex h-full flex-col">
       <div className="px-6 pt-8">
         <h1 className="m-0 font-display text-[22px] font-bold text-text">{tr.paymentTitle}</h1>
-        <p className="my-1.5 mb-5 text-[13px] text-muted">{tr.paymentSub}</p>
+        <p className="my-1.5 mb-5 text-[14.5px] text-muted">{tr.paymentSub}</p>
       </div>
       <div className="flex flex-1 flex-col gap-2.5 overflow-auto px-6">
-        <div className="text-[10px] uppercase tracking-wide text-muted">{tr.localMethodsLabel}</div>
+        <div className="text-[12px] font-semibold uppercase tracking-wide text-muted">{tr.localMethodsLabel}</div>
         {local.map(renderMethod)}
-        <div className="mt-2 text-[10px] uppercase tracking-wide text-muted">{tr.internationalMethodsLabel}</div>
+        <div className="mt-2 text-[12px] font-semibold uppercase tracking-wide text-muted">{tr.internationalMethodsLabel}</div>
         {intl.map(renderMethod)}
       </div>
       <div className="px-6 pb-6 pt-4.5">

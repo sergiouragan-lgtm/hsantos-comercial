@@ -33,11 +33,11 @@ export default function AchievementModal({ store }: { store: CaminhoLivreStore }
             />
           </svg>
         </div>
-        <div className="font-display text-[19px] font-bold text-text">{tr.congrats}</div>
-        <div className="mt-2 text-[12.5px] leading-relaxed text-muted">{tr.congratsMsg}</div>
+        <div className="font-display text-[20px] font-bold text-text">{tr.congrats}</div>
+        <div className="mt-2 text-[14.5px] leading-relaxed text-muted">{tr.congratsMsg}</div>
         <div
           onClick={actions.closeAchievement}
-          className="mt-4.5 cursor-pointer rounded-[11px] bg-accent py-2.5 text-[13px] font-bold text-[#0D1311]"
+          className="mt-4.5 cursor-pointer rounded-[11px] bg-accent py-2.5 text-[14.5px] font-bold text-[#0D1311]"
         >
           {tr.closeWord}
         </div>
