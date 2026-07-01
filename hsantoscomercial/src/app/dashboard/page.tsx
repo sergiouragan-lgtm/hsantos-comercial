@@ -1,14 +1,18 @@
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { formatMoney, formatDate, startOfPeriod } from "@/lib/format";
+import { formatMoney, formatDate, startOfPeriod, localeFor } from "@/lib/format";
 import CategoryChart from "@/components/CategoryChart";
 import Link from "next/link";
+import { t } from "@/lib/i18n/translations";
+import { HELP_COMMAND_WORD } from "@/lib/i18n/bot";
+import type { Language } from "@/lib/i18n/config";
 
 export const dynamic = "force-dynamic";
 
 export default async function OverviewPage() {
   const user = (await getCurrentUser())!;
   const currency = user.currency;
+  const lang = user.language as Language;
   const monthStart = startOfPeriod("month");
 
   const [txns, contactsCount, leadsCount, openFollowUps, recent] =
@@ -35,12 +39,12 @@ export default async function OverviewPage() {
   let income = 0;
   let expense = 0;
   const byCategory = new Map<string, number>();
-  for (const t of txns) {
-    const amount = Number(t.amount);
-    if (t.type === "INCOME") income += amount;
+  for (const tx of txns) {
+    const amount = Number(tx.amount);
+    if (tx.type === "INCOME") income += amount;
     else {
       expense += amount;
-      const name = t.category?.name ?? "Outros";
+      const name = tx.category?.name ?? "Outros";
       byCategory.set(name, (byCategory.get(name) ?? 0) + amount);
     }
   }
@@ -56,33 +60,34 @@ export default async function OverviewPage() {
     <div>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Visão geral</h1>
+          <h1 className="text-2xl font-bold">{t(lang, "overview", "title")}</h1>
           <p className="text-sm text-slate-500">
-            Olá, {user.name.split(" ")[0]}! Aqui está o resumo do seu mês.
+            {t(lang, "overview", "subtitle", { name: user.name.split(" ")[0] })}
           </p>
         </div>
         <Link href="/dashboard/expenses" className="btn-primary hidden md:inline-flex">
-          + Novo lançamento
+          {t(lang, "overview", "newEntry")}
         </Link>
       </div>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat label="Receitas (mês)" value={formatMoney(income, currency)} tone="green" />
-        <Stat label="Gastos (mês)" value={formatMoney(expense, currency)} tone="red" />
+        <Stat label={t(lang, "overview", "statIncome")} value={formatMoney(income, currency, lang)} tone="green" />
+        <Stat label={t(lang, "overview", "statExpense")} value={formatMoney(expense, currency, lang)} tone="red" />
         <Stat
-          label="Saldo (mês)"
-          value={formatMoney(balance, currency)}
+          label={t(lang, "overview", "statBalance")}
+          value={formatMoney(balance, currency, lang)}
           tone={balance >= 0 ? "green" : "red"}
         />
-        <Stat label="Contatos no CRM" value={String(contactsCount)} tone="brand" />
+        <Stat label={t(lang, "overview", "statContacts")} value={String(contactsCount)} tone="brand" />
       </div>
 
       {budget !== null && (
         <div className="card mt-4">
           <div className="flex items-center justify-between text-sm">
-            <span className="font-medium">Orçamento mensal</span>
+            <span className="font-medium">{t(lang, "overview", "budgetTitle")}</span>
             <span className="text-slate-500">
-              {formatMoney(expense, currency)} de {formatMoney(budget, currency)}
+              {formatMoney(expense, currency, lang)} {t(lang, "overview", "budgetConnector")}{" "}
+              {formatMoney(budget, currency, lang)}
             </span>
           </div>
           <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-slate-100">
@@ -93,47 +98,58 @@ export default async function OverviewPage() {
               style={{ width: `${Math.min(100, budgetPct ?? 0)}%` }}
             />
           </div>
-          <p className="mt-1 text-xs text-slate-400">{budgetPct}% utilizado</p>
+          <p className="mt-1 text-xs text-slate-400">
+            {budgetPct}
+            {t(lang, "overview", "budgetUsed")}
+          </p>
         </div>
       )}
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <div className="card">
-          <h2 className="mb-2 font-semibold">Gastos por categoria</h2>
-          <CategoryChart data={chartData} />
+          <h2 className="mb-2 font-semibold">{t(lang, "overview", "chartTitle")}</h2>
+          <CategoryChart
+            data={chartData}
+            currency={currency}
+            locale={localeFor(lang)}
+            emptyText={t(lang, "overview", "noEntries")}
+          />
         </div>
 
         <div className="card">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-semibold">Lançamentos recentes</h2>
+            <h2 className="font-semibold">{t(lang, "overview", "recentTitle")}</h2>
             <Link href="/dashboard/expenses" className="text-sm text-brand-700">
-              Ver todos
+              {t(lang, "overview", "viewAll")}
             </Link>
           </div>
           {recent.length === 0 ? (
-            <p className="text-sm text-slate-400">Nenhum lançamento ainda.</p>
+            <p className="text-sm text-slate-400">{t(lang, "overview", "noEntries")}</p>
           ) : (
             <ul className="divide-y divide-slate-100">
-              {recent.map((t) => (
-                <li key={t.id} className="flex items-center justify-between py-2.5">
+              {recent.map((tx) => (
+                <li key={tx.id} className="flex items-center justify-between py-2.5">
                   <div className="flex items-center gap-3">
-                    <span className="text-xl">{t.category?.emoji ?? "💸"}</span>
+                    <span className="text-xl">{tx.category?.emoji ?? "💸"}</span>
                     <div>
                       <p className="text-sm font-medium">
-                        {t.description || t.category?.name || "Lançamento"}
+                        {tx.description || tx.category?.name || t(lang, "expenses", "entryFallback")}
                       </p>
                       <p className="text-xs text-slate-400">
-                        {formatDate(t.occurredAt)} · {t.source === "WHATSAPP" ? "WhatsApp" : "Web"}
+                        {formatDate(tx.occurredAt, lang)} ·{" "}
+                        {tx.source === "WHATSAPP"
+                          ? t(lang, "expenses", "sourceWhatsapp")
+                          : t(lang, "expenses", "sourceWeb")}
                       </p>
                     </div>
                   </div>
                   <span
                     className={`text-sm font-semibold ${
-                      t.type === "INCOME" ? "text-brand-600" : "text-red-600"
+                      tx.type === "INCOME" ? "text-brand-600" : "text-red-600"
                     }`}
                   >
-                    {t.type === "INCOME" ? "+" : "-"}
-                    {formatMoney(Number(t.amount), currency)}
+                    {tx.type === "INCOME" ? "+" : "-"}
+                    {formatMoney(Number(tx.amount), currency, lang)}
                   </span>
                 </li>
               ))}
@@ -143,16 +159,14 @@ export default async function OverviewPage() {
       </div>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-3">
-        <Stat label="Leads ativos" value={String(leadsCount)} tone="brand" />
-        <Stat label="Follow-ups pendentes" value={String(openFollowUps)} tone="amber" />
+        <Stat label={t(lang, "overview", "leadsActive")} value={String(leadsCount)} tone="brand" />
+        <Stat label={t(lang, "overview", "followUpsPending")} value={String(openFollowUps)} tone="amber" />
         <div className="card flex flex-col justify-center">
-          <p className="text-sm text-slate-500">Dica</p>
+          <p className="text-sm text-slate-500">{t(lang, "overview", "tipTitle")}</p>
           <p className="text-sm">
-            Mande{" "}
-            <span className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs">
-              ajuda
-            </span>{" "}
-            no WhatsApp para ver todos os comandos.
+            {t(lang, "overview", "tipText", {
+              cmd: `«${HELP_COMMAND_WORD[lang]}»`,
+            })}
           </p>
         </div>
       </div>

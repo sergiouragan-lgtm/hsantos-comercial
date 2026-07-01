@@ -2,11 +2,14 @@ import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ensureDefaultCategories } from "@/lib/categories";
 import ExpensesClient from "@/components/ExpensesClient";
+import { t } from "@/lib/i18n/translations";
+import type { Language } from "@/lib/i18n/config";
 
 export const dynamic = "force-dynamic";
 
 export default async function ExpensesPage() {
   const user = (await getCurrentUser())!;
+  const lang = user.language as Language;
   await ensureDefaultCategories(user.id);
 
   const [categories, transactions] = await Promise.all([
@@ -24,11 +27,10 @@ export default async function ExpensesPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">Gastos</h1>
-      <p className="mb-6 text-sm text-slate-500">
-        Registre e acompanhe suas despesas e receitas.
-      </p>
+      <h1 className="text-2xl font-bold">{t(lang, "expenses", "title")}</h1>
+      <p className="mb-6 text-sm text-slate-500">{t(lang, "expenses", "subtitle")}</p>
       <ExpensesClient
+        lang={lang}
         currency={user.currency}
         categories={categories.map((c) => ({
           id: c.id,
@@ -36,16 +38,16 @@ export default async function ExpensesPage() {
           emoji: c.emoji,
           type: c.type,
         }))}
-        initialTransactions={transactions.map((t) => ({
-          id: t.id,
-          type: t.type,
-          amount: t.amount.toString(),
-          description: t.description,
-          category: t.category
-            ? { id: t.category.id, name: t.category.name, emoji: t.category.emoji }
+        initialTransactions={transactions.map((tx) => ({
+          id: tx.id,
+          type: tx.type,
+          amount: tx.amount.toString(),
+          description: tx.description,
+          category: tx.category
+            ? { id: tx.category.id, name: tx.category.name, emoji: tx.category.emoji }
             : null,
-          source: t.source,
-          occurredAt: t.occurredAt.toISOString(),
+          source: tx.source,
+          occurredAt: tx.occurredAt.toISOString(),
         }))}
       />
     </div>

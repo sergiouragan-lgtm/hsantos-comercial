@@ -1,21 +1,36 @@
+import type { Language } from "./i18n/config";
+
+const LOCALE_MAP: Record<Language, string> = {
+  pt: "pt-PT",
+  en: "en-US",
+  fr: "fr-FR",
+  ar: "ar-EG",
+  zh: "zh-CN",
+};
+
+export function localeFor(lang?: Language): string {
+  return lang ? LOCALE_MAP[lang] : "pt-PT";
+}
+
 export function formatMoney(
   value: number | string,
-  currency = "BRL"
+  currency = "AOA",
+  lang?: Language
 ): string {
   const num = typeof value === "string" ? parseFloat(value) : value;
   try {
-    return new Intl.NumberFormat("pt-BR", {
+    return new Intl.NumberFormat(localeFor(lang), {
       style: "currency",
       currency,
     }).format(num);
   } catch {
-    return `R$ ${num.toFixed(2)}`;
+    return `${currency} ${num.toFixed(2)}`;
   }
 }
 
-export function formatDate(date: Date | string): string {
+export function formatDate(date: Date | string, lang?: Language): string {
   const d = typeof date === "string" ? new Date(date) : date;
-  return new Intl.DateTimeFormat("pt-BR", {
+  return new Intl.DateTimeFormat(localeFor(lang), {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",

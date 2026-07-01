@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 
-export default function LogoutButton() {
+export default function LogoutButton({ label = "Sair" }: { label?: string }) {
   const router = useRouter();
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -11,7 +11,7 @@ export default function LogoutButton() {
   }
   return (
     <button onClick={logout} className="text-sm text-slate-500 hover:text-slate-800">
-      Sair
+      {label}
     </button>
   );
 }

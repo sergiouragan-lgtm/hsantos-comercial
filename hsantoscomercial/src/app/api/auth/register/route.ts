@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { hashPassword, createSession } from "@/lib/auth";
 import { ensureDefaultCategories } from "@/lib/categories";
 import { normalizePhone } from "@/lib/whatsapp";
+import { getLanguage } from "@/lib/i18n/server";
 
 const schema = z.object({
   name: z.string().min(2, "Informe seu nome"),
@@ -48,8 +49,9 @@ export async function POST(req: NextRequest) {
   }
 
   const passwordHash = await hashPassword(password);
+  const language = getLanguage();
   const user = await prisma.user.create({
-    data: { name, email, passwordHash, whatsappNumber },
+    data: { name, email, passwordHash, whatsappNumber, language },
   });
   await ensureDefaultCategories(user.id);
   await createSession(user.id);

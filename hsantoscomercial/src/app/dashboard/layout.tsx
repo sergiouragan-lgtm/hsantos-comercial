@@ -3,6 +3,8 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import NavLink from "@/components/NavLink";
 import LogoutButton from "@/components/LogoutButton";
+import { t } from "@/lib/i18n/translations";
+import type { Language } from "@/lib/i18n/config";
 
 export default async function DashboardLayout({
   children,
@@ -11,6 +13,7 @@ export default async function DashboardLayout({
 }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
+  const lang = user.language as Language;
 
   return (
     <div className="min-h-screen md:flex">
@@ -23,20 +26,20 @@ export default async function DashboardLayout({
             HSantos
           </Link>
           <div className="md:hidden">
-            <LogoutButton />
+            <LogoutButton label={t(lang, "dashboardNav", "logout")} />
           </div>
         </div>
         <nav className="flex gap-1 overflow-x-auto px-3 pb-3 md:flex-col md:gap-1 md:pb-0">
-          <NavLink href="/dashboard" emoji="📊" label="Visão geral" />
-          <NavLink href="/dashboard/expenses" emoji="💸" label="Gastos" />
-          <NavLink href="/dashboard/crm" emoji="🤝" label="CRM" />
-          <NavLink href="/dashboard/settings" emoji="⚙️" label="Configurações" />
+          <NavLink href="/dashboard" emoji="📊" label={t(lang, "dashboardNav", "overview")} />
+          <NavLink href="/dashboard/expenses" emoji="💸" label={t(lang, "dashboardNav", "expenses")} />
+          <NavLink href="/dashboard/crm" emoji="🤝" label={t(lang, "dashboardNav", "crm")} />
+          <NavLink href="/dashboard/settings" emoji="⚙️" label={t(lang, "dashboardNav", "settings")} />
         </nav>
         <div className="hidden border-t border-slate-200 p-5 md:block">
           <p className="truncate text-sm font-medium">{user.name}</p>
           <p className="truncate text-xs text-slate-400">{user.email}</p>
           <div className="mt-2">
-            <LogoutButton />
+            <LogoutButton label={t(lang, "dashboardNav", "logout")} />
           </div>
         </div>
       </aside>

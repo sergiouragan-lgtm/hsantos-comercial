@@ -1,53 +1,56 @@
 import { getCurrentUser } from "@/lib/auth";
 import SettingsClient from "@/components/SettingsClient";
+import { t } from "@/lib/i18n/translations";
+import type { Language } from "@/lib/i18n/config";
 
 export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
   const user = (await getCurrentUser())!;
+  const lang = user.language as Language;
   const appUrl = process.env.APP_URL || "https://seu-dominio.com";
   const verifyToken = process.env.WHATSAPP_VERIFY_TOKEN || "hsantos-verify-token";
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">Configurações</h1>
-      <p className="mb-6 text-sm text-slate-500">
-        Ajuste seu perfil, orçamento e a integração com o WhatsApp.
-      </p>
+      <h1 className="text-2xl font-bold">{t(lang, "settings", "title")}</h1>
+      <p className="mb-6 text-sm text-slate-500">{t(lang, "settings", "subtitle")}</p>
 
       <SettingsClient
+        lang={lang}
         initial={{
           name: user.name,
           whatsappNumber: user.whatsappNumber ?? "",
           currency: user.currency,
+          language: user.language,
           monthlyBudget: user.monthlyBudget ?? "",
         }}
       />
 
       <div className="card mt-6 max-w-2xl">
-        <h2 className="font-semibold">Integração WhatsApp Business (Cloud API)</h2>
+        <h2 className="font-semibold">{t(lang, "settings", "integrationTitle")}</h2>
         <p className="mt-1 text-sm text-slate-500">
-          Configure o webhook no{" "}
+          {t(lang, "settings", "integrationSubtitlePre")}{" "}
           <a
             className="text-brand-700 underline"
             href="https://developers.facebook.com/apps"
             target="_blank"
             rel="noreferrer"
           >
-            Meta for Developers
+            {t(lang, "settings", "integrationSubtitleLink")}
           </a>{" "}
-          com os dados abaixo.
+          {t(lang, "settings", "integrationSubtitlePost")}
         </p>
         <dl className="mt-4 space-y-3 text-sm">
-          <ConfigRow label="Callback URL" value={`${appUrl}/api/webhook/whatsapp`} />
-          <ConfigRow label="Verify Token" value={verifyToken} />
-          <ConfigRow label="Campo (webhook fields)" value="messages" />
+          <ConfigRow
+            label={t(lang, "settings", "callbackUrl")}
+            value={`${appUrl}/api/webhook/whatsapp`}
+          />
+          <ConfigRow label={t(lang, "settings", "verifyToken")} value={verifyToken} />
+          <ConfigRow label={t(lang, "settings", "webhookField")} value="messages" />
         </dl>
         <div className="mt-4 rounded-lg bg-slate-50 p-3 text-xs text-slate-500">
-          Defina as variáveis de ambiente <code>WHATSAPP_TOKEN</code>,{" "}
-          <code>WHATSAPP_PHONE_NUMBER_ID</code> e{" "}
-          <code>WHATSAPP_VERIFY_TOKEN</code> no servidor para que o envio e o
-          recebimento de mensagens funcionem.
+          {t(lang, "settings", "envNote")}
         </div>
       </div>
     </div>

@@ -21,7 +21,8 @@ model User {
   // Número do WhatsApp do próprio usuário (formato E.164 sem "+"), usado para
   // associar mensagens recebidas ao tenant correto.
   whatsappNumber String?  @unique
-  currency       String   @default("BRL")
+  currency       String   @default("AOA")
+  language       String   @default("pt")
   monthlyBudget  Decimal? @db.Decimal(12, 2)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt

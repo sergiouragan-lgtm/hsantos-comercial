@@ -22,13 +22,19 @@ const COLORS = [
 
 export default function CategoryChart({
   data,
+  currency = "AOA",
+  locale = "pt-PT",
+  emptyText = "Sem gastos no período.",
 }: {
   data: { name: string; value: number }[];
+  currency?: string;
+  locale?: string;
+  emptyText?: string;
 }) {
   if (data.length === 0) {
     return (
       <div className="grid h-64 place-items-center text-sm text-slate-400">
-        Sem gastos no período.
+        {emptyText}
       </div>
     );
   }
@@ -49,9 +55,9 @@ export default function CategoryChart({
         </Pie>
         <Tooltip
           formatter={(value: number) =>
-            new Intl.NumberFormat("pt-BR", {
+            new Intl.NumberFormat(locale, {
               style: "currency",
-              currency: "BRL",
+              currency,
             }).format(value)
           }
         />

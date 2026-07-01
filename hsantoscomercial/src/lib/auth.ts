@@ -62,6 +62,7 @@ export type SessionUser = {
   email: string;
   whatsappNumber: string | null;
   currency: string;
+  language: string;
   monthlyBudget: string | null;
 };
 
@@ -76,6 +77,7 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     email: user.email,
     whatsappNumber: user.whatsappNumber,
     currency: user.currency,
+    language: user.language,
     monthlyBudget: user.monthlyBudget ? user.monthlyBudget.toString() : null,
   };
 }

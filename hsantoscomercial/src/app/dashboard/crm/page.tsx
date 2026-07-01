@@ -1,11 +1,14 @@
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import CrmClient from "@/components/CrmClient";
+import { t } from "@/lib/i18n/translations";
+import type { Language } from "@/lib/i18n/config";
 
 export const dynamic = "force-dynamic";
 
 export default async function CrmPage() {
   const user = (await getCurrentUser())!;
+  const lang = user.language as Language;
 
   const contacts = await prisma.contact.findMany({
     where: { userId: user.id },
@@ -21,11 +24,10 @@ export default async function CrmPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">CRM</h1>
-      <p className="mb-6 text-sm text-slate-500">
-        Gerencie seus leads e clientes pelo funil de vendas.
-      </p>
+      <h1 className="text-2xl font-bold">{t(lang, "crm", "title")}</h1>
+      <p className="mb-6 text-sm text-slate-500">{t(lang, "crm", "subtitle")}</p>
       <CrmClient
+        lang={lang}
         currency={user.currency}
         initialContacts={contacts.map((c) => ({
           id: c.id,

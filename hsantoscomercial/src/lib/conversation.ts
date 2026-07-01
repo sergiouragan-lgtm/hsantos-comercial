@@ -1,50 +1,40 @@
 import { prisma } from "./prisma";
 import { parseMessage } from "./parser";
 import { guessCategoryName, ensureDefaultCategories } from "./categories";
-import { formatMoney, startOfPeriod, STAGE_LABELS } from "./format";
+import { formatMoney, localeFor, startOfPeriod } from "./format";
+import { getStageLabels } from "./i18n/translations";
+import { botStrings } from "./i18n/bot";
+import type { Language } from "./i18n/config";
 import type { User } from "@prisma/client";
-
-const HELP_TEXT = `🤖 *HSantos — Gastos & CRM*
-
-Eu te ajudo a controlar suas finanças e seus contatos pelo WhatsApp.
-
-💸 *Registrar gasto*
-• "gastei 50 no mercado"
-• "30 uber"
-• "-120 farmácia"
-
-💰 *Registrar receita*
-• "recebi 2000 salário"
-• "+500 venda cliente"
-
-📊 *Consultar*
-• "saldo" — saldo do mês
-• "relatório" — resumo do mês
-• "relatório semana" / "relatório hoje"
-
-🤝 *CRM*
-• "contato Maria 11999998888 empresa Acme"
-• "leads" — listar contatos
-
-Digite *ajuda* a qualquer momento para ver este menu.`;
 
 /**
  * Processa uma mensagem de texto recebida de um usuário já identificado.
- * Executa a ação no banco e devolve a resposta a ser enviada no WhatsApp.
+ * Executa a ação no banco e devolve a resposta a ser enviada no WhatsApp,
+ * no idioma configurado pelo usuário.
  */
 export async function handleIncomingMessage(
   user: User,
   text: string
 ): Promise<string> {
   const intent = parseMessage(text);
-  const currency = user.currency || "BRL";
+  const currency = user.currency || "AOA";
+  const lang = (user.language as Language) || "pt";
+  const strings = botStrings[lang];
 
   switch (intent.kind) {
     case "help":
-      return HELP_TEXT;
+      return strings.help;
 
     case "greeting":
-      return `Olá, ${user.name.split(" ")[0]}! 👋\n\n${HELP_TEXT}`;
+      return strings.greeting(user.name.split(" ")[0]);
+
+    case "set_language": {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { language: intent.language },
+      });
+      return botStrings[intent.language].languageChanged;
+    }
 
     case "transaction": {
       await ensureDefaultCategories(user.id);
@@ -66,22 +56,23 @@ export async function handleIncomingMessage(
       });
 
       const emoji = intent.type === "EXPENSE" ? "💸" : "💰";
-      const verbo = intent.type === "EXPENSE" ? "Gasto" : "Receita";
-      const desc = intent.description ? ` em _${intent.description}_` : "";
+      const verbo = intent.type === "EXPENSE" ? strings.expenseLabel : strings.incomeLabel;
+      const desc = intent.description ? ` ${strings.inWord} _${intent.description}_` : "";
       const cat = category ? ` ${category.emoji} ${category.name}` : "";
 
-      const summary = await monthSummary(user, currency);
-      return `${emoji} *${verbo} registrado!*\n${formatMoney(
+      const summary = await monthSummary(user, currency, lang);
+      return `${emoji} *${verbo} ${strings.recorded}*\n${formatMoney(
         intent.amount,
-        currency
-      )}${desc}\nCategoria:${cat}\n\n${summary}`;
+        currency,
+        lang
+      )}${desc}\n${strings.categoryLabel}${cat}\n\n${summary}`;
     }
 
     case "balance":
-      return await monthSummary(user, currency);
+      return await monthSummary(user, currency, lang);
 
     case "report":
-      return await periodReport(user, intent.period, currency);
+      return await periodReport(user, intent.period, currency, lang);
 
     case "add_contact": {
       const contact = await prisma.contact.create({
@@ -93,10 +84,11 @@ export async function handleIncomingMessage(
           stage: "LEAD",
         },
       });
-      const parts = [`🤝 *Contato adicionado ao CRM!*`, `👤 ${contact.name}`];
+      const stageLabels = getStageLabels(lang);
+      const parts = [strings.contactAdded, `👤 ${contact.name}`];
       if (contact.company) parts.push(`🏢 ${contact.company}`);
       if (contact.phone) parts.push(`📱 ${contact.phone}`);
-      parts.push(`Estágio: ${STAGE_LABELS[contact.stage]}`);
+      parts.push(`${strings.stageLabel} ${stageLabels[contact.stage]}`);
       return parts.join("\n");
     }
 
@@ -107,24 +99,23 @@ export async function handleIncomingMessage(
         take: 15,
       });
       if (contacts.length === 0) {
-        return "📇 Você ainda não tem contatos.\nAdicione com: *contato Nome 11999998888*";
+        return strings.noContacts;
       }
+      const stageLabels = getStageLabels(lang);
       const lines = contacts.map(
-        (c) =>
-          `• ${c.name}${c.company ? ` (${c.company})` : ""} — ${
-            STAGE_LABELS[c.stage]
-          }`
+        (c) => `• ${c.name}${c.company ? ` (${c.company})` : ""} — ${stageLabels[c.stage]}`
       );
-      return `📇 *Seus contatos* (${contacts.length})\n\n${lines.join("\n")}`;
+      return `${strings.contactsTitle(contacts.length)}\n\n${lines.join("\n")}`;
     }
 
     case "unknown":
     default:
-      return `Não entendi 🤔\nTente algo como "gastei 50 no mercado" ou digite *ajuda* para ver os comandos.`;
+      return strings.unknown;
   }
 }
 
-async function monthSummary(user: User, currency: string): Promise<string> {
+async function monthSummary(user: User, currency: string, lang: Language): Promise<string> {
+  const strings = botStrings[lang];
   const start = startOfPeriod("month");
   const txns = await prisma.transaction.findMany({
     where: { userId: user.id, occurredAt: { gte: start } },
@@ -137,7 +128,7 @@ async function monthSummary(user: User, currency: string): Promise<string> {
     else expense += amount;
   }
   const balance = income - expense;
-  const monthName = new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(
+  const monthName = new Intl.DateTimeFormat(localeFor(lang), { month: "long" }).format(
     start
   );
 
@@ -146,23 +137,26 @@ async function monthSummary(user: User, currency: string): Promise<string> {
     const budget = Number(user.monthlyBudget);
     const pct = budget > 0 ? Math.round((expense / budget) * 100) : 0;
     const bar = progressBar(pct);
-    budgetLine = `\n🎯 Orçamento: ${bar} ${pct}%\n(${formatMoney(
+    budgetLine = `\n🎯 ${strings.budgetLabel} ${bar} ${pct}%\n(${formatMoney(
       expense,
-      currency
-    )} de ${formatMoney(budget, currency)})`;
+      currency,
+      lang
+    )} ${strings.reportTotal.replace(":", "")} ${formatMoney(budget, currency, lang)})`;
   }
 
-  return `📊 *Resumo de ${monthName}*
-💰 Receitas: ${formatMoney(income, currency)}
-💸 Gastos: ${formatMoney(expense, currency)}
-${balance >= 0 ? "✅" : "⚠️"} Saldo: ${formatMoney(balance, currency)}${budgetLine}`;
+  return `${strings.summaryTitle(monthName)}
+💰 ${strings.income} ${formatMoney(income, currency, lang)}
+💸 ${strings.expense} ${formatMoney(expense, currency, lang)}
+${balance >= 0 ? "✅" : "⚠️"} ${strings.balance} ${formatMoney(balance, currency, lang)}${budgetLine}`;
 }
 
 async function periodReport(
   user: User,
   period: "day" | "week" | "month",
-  currency: string
+  currency: string,
+  lang: Language
 ): Promise<string> {
+  const strings = botStrings[lang];
   const start = startOfPeriod(period);
   const txns = await prisma.transaction.findMany({
     where: {
@@ -173,9 +167,9 @@ async function periodReport(
     include: { category: true },
   });
 
-  const labels = { day: "hoje", week: "esta semana", month: "este mês" };
+  const labels = { day: strings.periodDay, week: strings.periodWeek, month: strings.periodMonth };
   if (txns.length === 0) {
-    return `📊 Nenhum gasto registrado ${labels[period]}.`;
+    return strings.reportEmpty(labels[period]);
   }
 
   const byCategory = new Map<string, { total: number; emoji: string }>();
@@ -195,12 +189,12 @@ async function periodReport(
   );
   const lines = sorted.map(([name, { total: t, emoji }]) => {
     const pct = total > 0 ? Math.round((t / total) * 100) : 0;
-    return `${emoji} ${name}: ${formatMoney(t, currency)} (${pct}%)`;
+    return `${emoji} ${name}: ${formatMoney(t, currency, lang)} (${pct}%)`;
   });
 
-  return `📊 *Gastos ${labels[period]}*\n\n${lines.join(
+  return `${strings.reportTitle(labels[period])}\n\n${lines.join(
     "\n"
-  )}\n\n*Total: ${formatMoney(total, currency)}*`;
+  )}\n\n*${strings.reportTotal} ${formatMoney(total, currency, lang)}*`;
 }
 
 function progressBar(pct: number): string {

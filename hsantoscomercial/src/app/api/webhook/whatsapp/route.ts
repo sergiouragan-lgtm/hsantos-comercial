@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { handleIncomingMessage } from "@/lib/conversation";
 import { sendText, normalizePhone } from "@/lib/whatsapp";
+import { botStrings } from "@/lib/i18n/bot";
+import type { Language } from "@/lib/i18n/config";
 
 export const dynamic = "force-dynamic";
 
@@ -84,24 +86,22 @@ async function processMessage(message: any, businessNumber: string) {
   });
 
   if (!user) {
+    // Sem conta vinculada ainda não há como saber o idioma preferido do
+    // remetente (a Cloud API não informa o idioma do telefone) — usamos
+    // Português como padrão nesta mensagem específica.
     await reply(
       from,
       businessNumber,
       null,
-      `Olá! 👋 Este número ainda não está vinculado a uma conta HSantos.\n\nCrie sua conta em ${
-        process.env.APP_URL || "nosso site"
-      } e cadastre este número de WhatsApp nas configurações para começar a registrar seus gastos.`
+      botStrings.pt.unlinkedNumber(process.env.APP_URL || "nosso site")
     );
     return;
   }
 
+  const lang = (user.language as Language) || "pt";
+
   if (!body) {
-    await reply(
-      from,
-      businessNumber,
-      user.id,
-      "Por enquanto só consigo entender mensagens de texto 🙂\nDigite *ajuda* para ver os comandos."
-    );
+    await reply(from, businessNumber, user.id, botStrings[lang].onlyText);
     return;
   }
 

@@ -2,7 +2,11 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { STAGE_LABELS, formatMoney, formatDate } from "@/lib/format";
+import { formatMoney, formatDate } from "@/lib/format";
+import { t, translations, getStageLabels } from "@/lib/i18n/translations";
+import type { Language } from "@/lib/i18n/config";
+
+type CrmKey = keyof (typeof translations)["pt"]["crm"];
 
 type Contact = {
   id: string;
@@ -32,11 +36,15 @@ type Interaction = {
 export default function CrmClient({
   initialContacts,
   currency,
+  lang,
 }: {
   initialContacts: Contact[];
   currency: string;
+  lang: Language;
 }) {
   const router = useRouter();
+  const tt = (key: CrmKey) => t(lang, "crm", key);
+  const stageLabels = getStageLabels(lang);
   const [contacts, setContacts] = useState<Contact[]>(initialContacts);
   const [showForm, setShowForm] = useState(false);
   const [selected, setSelected] = useState<Contact | null>(null);
@@ -61,7 +69,7 @@ export default function CrmClient({
   }
 
   async function removeContact(id: string) {
-    if (!confirm("Excluir este contato e seu histórico?")) return;
+    if (!confirm(tt("deleteConfirm"))) return;
     await fetch(`/api/contacts/${id}`, { method: "DELETE" });
     setContacts((cs) => cs.filter((c) => c.id !== id));
     setSelected(null);
@@ -72,10 +80,10 @@ export default function CrmClient({
     <div>
       <div className="mb-4 flex items-center justify-between">
         <p className="text-sm text-slate-500">
-          {contacts.length} contato(s) no funil
+          {contacts.length} {tt("countSuffix")}
         </p>
         <button className="btn-primary" onClick={() => setShowForm(true)}>
-          + Novo contato
+          {tt("newContact")}
         </button>
       </div>
 
@@ -86,7 +94,7 @@ export default function CrmClient({
             <div key={stage} className="min-w-[220px]">
               <div className="mb-2 flex items-center justify-between px-1">
                 <h3 className="text-sm font-semibold text-slate-700">
-                  {STAGE_LABELS[stage]}
+                  {stageLabels[stage]}
                 </h3>
                 <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500">
                   {items.length}
@@ -105,12 +113,12 @@ export default function CrmClient({
                     )}
                     {c.value && (
                       <p className="mt-1 text-xs font-semibold text-brand-600">
-                        {formatMoney(Number(c.value), currency)}
+                        {formatMoney(Number(c.value), currency, lang)}
                       </p>
                     )}
                     {c.nextFollowUp && (
                       <p className="mt-1 text-xs text-amber-600">
-                        ⏰ {formatDate(c.nextFollowUp)}
+                        ⏰ {formatDate(c.nextFollowUp, lang)}
                       </p>
                     )}
                   </button>
@@ -126,6 +134,7 @@ export default function CrmClient({
 
       {showForm && (
         <ContactForm
+          lang={lang}
           onClose={() => setShowForm(false)}
           onSaved={async () => {
             setShowForm(false);
@@ -138,6 +147,7 @@ export default function CrmClient({
         <ContactDrawer
           contact={selected}
           currency={currency}
+          lang={lang}
           onClose={() => setSelected(null)}
           onChangeStage={changeStage}
           onDelete={removeContact}
@@ -151,10 +161,14 @@ export default function CrmClient({
 function ContactForm({
   onClose,
   onSaved,
+  lang,
 }: {
   onClose: () => void;
   onSaved: () => void;
+  lang: Language;
 }) {
+  const tt = (key: CrmKey) => t(lang, "crm", key);
+  const stageLabels = getStageLabels(lang);
   const [form, setForm] = useState({
     name: "",
     company: "",
@@ -188,9 +202,9 @@ function ContactForm({
   }
 
   return (
-    <Modal onClose={onClose} title="Novo contato">
+    <Modal onClose={onClose} title={tt("newContactTitle")}>
       <form onSubmit={submit} className="space-y-3">
-        <Field label="Nome">
+        <Field label={tt("fieldName")}>
           <input
             className="input"
             value={form.name}
@@ -199,14 +213,14 @@ function ContactForm({
           />
         </Field>
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Empresa">
+          <Field label={tt("fieldCompany")}>
             <input
               className="input"
               value={form.company}
               onChange={(e) => setForm({ ...form, company: e.target.value })}
             />
           </Field>
-          <Field label="Telefone">
+          <Field label={tt("fieldPhone")}>
             <input
               className="input"
               value={form.phone}
@@ -215,7 +229,7 @@ function ContactForm({
           </Field>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <Field label="E-mail">
+          <Field label={tt("fieldEmail")}>
             <input
               className="input"
               type="email"
@@ -223,7 +237,7 @@ function ContactForm({
               onChange={(e) => setForm({ ...form, email: e.target.value })}
             />
           </Field>
-          <Field label="Valor potencial">
+          <Field label={tt("fieldValue")}>
             <input
               className="input"
               type="number"
@@ -233,7 +247,7 @@ function ContactForm({
             />
           </Field>
         </div>
-        <Field label="Estágio">
+        <Field label={tt("fieldStage")}>
           <select
             className="input"
             value={form.stage}
@@ -241,12 +255,12 @@ function ContactForm({
           >
             {STAGES.map((s) => (
               <option key={s} value={s}>
-                {STAGE_LABELS[s]}
+                {stageLabels[s]}
               </option>
             ))}
           </select>
         </Field>
-        <Field label="Notas">
+        <Field label={tt("fieldNotes")}>
           <textarea
             className="input"
             rows={2}
@@ -257,10 +271,10 @@ function ContactForm({
         {error && <p className="text-sm text-red-600">{error}</p>}
         <div className="flex justify-end gap-2 pt-2">
           <button type="button" className="btn-ghost" onClick={onClose}>
-            Cancelar
+            {tt("cancel")}
           </button>
           <button className="btn-primary" disabled={loading}>
-            {loading ? "Salvando..." : "Salvar"}
+            {loading ? tt("saving") : tt("save")}
           </button>
         </div>
       </form>
@@ -271,6 +285,7 @@ function ContactForm({
 function ContactDrawer({
   contact,
   currency,
+  lang,
   onClose,
   onChangeStage,
   onDelete,
@@ -278,11 +293,14 @@ function ContactDrawer({
 }: {
   contact: Contact;
   currency: string;
+  lang: Language;
   onClose: () => void;
   onChangeStage: (id: string, stage: Stage) => void;
   onDelete: (id: string) => void;
   onUpdated: () => void;
 }) {
+  const tt = (key: CrmKey) => t(lang, "crm", key);
+  const stageLabels = getStageLabels(lang);
   const [interactions, setInteractions] = useState<Interaction[] | null>(null);
   const [content, setContent] = useState("");
   const [dueAt, setDueAt] = useState("");
@@ -325,14 +343,14 @@ function ContactDrawer({
         {contact.email && <p>✉️ {contact.email}</p>}
         {contact.value && (
           <p className="font-semibold text-brand-600">
-            💰 {formatMoney(Number(contact.value), currency)}
+            💰 {formatMoney(Number(contact.value), currency, lang)}
           </p>
         )}
         {contact.notes && <p className="text-slate-500">📝 {contact.notes}</p>}
       </div>
 
       <div className="mt-4">
-        <label className="label">Estágio</label>
+        <label className="label">{tt("fieldStage")}</label>
         <select
           className="input"
           value={contact.stage}
@@ -340,14 +358,14 @@ function ContactDrawer({
         >
           {STAGES.map((s) => (
             <option key={s} value={s}>
-              {STAGE_LABELS[s]}
+              {stageLabels[s]}
             </option>
           ))}
         </select>
       </div>
 
       <div className="mt-5">
-        <h3 className="mb-2 text-sm font-semibold">Histórico & Follow-ups</h3>
+        <h3 className="mb-2 text-sm font-semibold">{tt("historyTitle")}</h3>
         <form onSubmit={addInteraction} className="space-y-2 rounded-lg bg-slate-50 p-3">
           <div className="grid grid-cols-2 gap-2">
             <select
@@ -355,29 +373,28 @@ function ContactDrawer({
               value={type}
               onChange={(e) => setType(e.target.value)}
             >
-              <option value="NOTE">Nota</option>
-              <option value="CALL">Ligação</option>
-              <option value="MESSAGE">Mensagem</option>
-              <option value="MEETING">Reunião</option>
-              <option value="TASK">Tarefa</option>
+              <option value="NOTE">{tt("typeNote")}</option>
+              <option value="CALL">{tt("typeCall")}</option>
+              <option value="MESSAGE">{tt("typeMessage")}</option>
+              <option value="MEETING">{tt("typeMeeting")}</option>
+              <option value="TASK">{tt("typeTask")}</option>
             </select>
             <input
               className="input"
               type="date"
               value={dueAt}
               onChange={(e) => setDueAt(e.target.value)}
-              title="Data de follow-up (opcional)"
             />
           </div>
           <textarea
             className="input"
             rows={2}
-            placeholder="Descreva a interação ou o follow-up..."
+            placeholder={tt("contentPlaceholder")}
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />
           <button className="btn-primary w-full" disabled={loading}>
-            {loading ? "Salvando..." : "Adicionar"}
+            {loading ? tt("saving") : tt("add")}
           </button>
         </form>
 
@@ -388,24 +405,24 @@ function ContactDrawer({
                 <span className="font-medium">{i.content}</span>
                 {i.dueAt && (
                   <span className="text-xs text-amber-600">
-                    ⏰ {formatDate(i.dueAt)}
+                    ⏰ {formatDate(i.dueAt, lang)}
                   </span>
                 )}
               </div>
               <p className="text-xs text-slate-400">
-                {i.type} · {formatDate(i.createdAt)}
+                {i.type} · {formatDate(i.createdAt, lang)}
               </p>
             </li>
           ))}
           {interactions?.length === 0 && (
-            <p className="text-xs text-slate-400">Nenhuma interação ainda.</p>
+            <p className="text-xs text-slate-400">{tt("noInteractions")}</p>
           )}
         </ul>
       </div>
 
       <div className="mt-5 flex justify-end border-t border-slate-100 pt-3">
         <button className="btn-danger" onClick={() => onDelete(contact.id)}>
-          Excluir contato
+          {tt("deleteContact")}
         </button>
       </div>
     </Modal>

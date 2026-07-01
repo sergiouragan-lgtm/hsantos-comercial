@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useLanguage } from "@/components/LanguageProvider";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -46,13 +48,11 @@ export default function RegisterPage() {
           HSantos
         </Link>
         <div className="card">
-          <h1 className="text-xl font-bold">Criar conta</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Comece a controlar seus gastos e contatos pelo WhatsApp.
-          </p>
+          <h1 className="text-xl font-bold">{t("register", "title")}</h1>
+          <p className="mt-1 text-sm text-slate-500">{t("register", "subtitle")}</p>
           <form onSubmit={submit} className="mt-5 space-y-4">
             <div>
-              <label className="label">Nome</label>
+              <label className="label">{t("register", "name")}</label>
               <input
                 className="input"
                 value={form.name}
@@ -61,7 +61,7 @@ export default function RegisterPage() {
               />
             </div>
             <div>
-              <label className="label">E-mail</label>
+              <label className="label">{t("register", "email")}</label>
               <input
                 className="input"
                 type="email"
@@ -71,21 +71,17 @@ export default function RegisterPage() {
               />
             </div>
             <div>
-              <label className="label">
-                WhatsApp <span className="text-slate-400">(com DDD)</span>
-              </label>
+              <label className="label">{t("register", "whatsapp")}</label>
               <input
                 className="input"
                 placeholder="11999998888"
                 value={form.whatsappNumber}
                 onChange={(e) => update("whatsappNumber", e.target.value)}
               />
-              <p className="mt-1 text-xs text-slate-400">
-                Número que você usará para enviar comandos ao bot.
-              </p>
+              <p className="mt-1 text-xs text-slate-400">{t("register", "whatsappHint")}</p>
             </div>
             <div>
-              <label className="label">Senha</label>
+              <label className="label">{t("register", "password")}</label>
               <input
                 className="input"
                 type="password"
@@ -97,14 +93,14 @@ export default function RegisterPage() {
             </div>
             {error && <p className="text-sm text-red-600">{error}</p>}
             <button className="btn-primary w-full" disabled={loading}>
-              {loading ? "Criando..." : "Criar conta grátis"}
+              {loading ? t("register", "submitting") : t("register", "submit")}
             </button>
           </form>
         </div>
         <p className="mt-4 text-center text-sm text-slate-600">
-          Já tem conta?{" "}
+          {t("register", "haveAccount")}{" "}
           <Link href="/login" className="font-semibold text-brand-700">
-            Entrar
+            {t("register", "login")}
           </Link>
         </p>
       </div>

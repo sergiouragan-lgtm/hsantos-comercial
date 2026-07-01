@@ -3,6 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { formatMoney, formatDate } from "@/lib/format";
+import { t, translations } from "@/lib/i18n/translations";
+import type { Language } from "@/lib/i18n/config";
+
+type ExpensesKey = keyof (typeof translations)["pt"]["expenses"];
 
 type Category = { id: string; name: string; emoji: string; type: string };
 type Txn = {
@@ -19,12 +23,15 @@ export default function ExpensesClient({
   categories,
   initialTransactions,
   currency,
+  lang,
 }: {
   categories: Category[];
   initialTransactions: Txn[];
   currency: string;
+  lang: Language;
 }) {
   const router = useRouter();
+  const tt = (key: ExpensesKey) => t(lang, "expenses", key);
   const [txns, setTxns] = useState<Txn[]>(initialTransactions);
   const [type, setType] = useState<"EXPENSE" | "INCOME">("EXPENSE");
   const [amount, setAmount] = useState("");
@@ -71,10 +78,10 @@ export default function ExpensesClient({
   }
 
   async function remove(id: string) {
-    if (!confirm("Excluir este lançamento?")) return;
+    if (!confirm(tt("deleteConfirm"))) return;
     const res = await fetch(`/api/transactions/${id}`, { method: "DELETE" });
     if (res.ok) {
-      setTxns((t) => t.filter((x) => x.id !== id));
+      setTxns((prev) => prev.filter((x) => x.id !== id));
       router.refresh();
     }
   }
@@ -82,7 +89,7 @@ export default function ExpensesClient({
   return (
     <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
       <div className="card h-fit">
-        <h2 className="font-semibold">Novo lançamento</h2>
+        <h2 className="font-semibold">{tt("formTitle")}</h2>
         <form onSubmit={add} className="mt-4 space-y-4">
           <div className="grid grid-cols-2 gap-2">
             <button
@@ -93,7 +100,7 @@ export default function ExpensesClient({
               }}
               className={`btn ${type === "EXPENSE" ? "bg-red-600 text-white" : "btn-ghost"}`}
             >
-              💸 Gasto
+              {tt("expenseBtn")}
             </button>
             <button
               type="button"
@@ -103,11 +110,11 @@ export default function ExpensesClient({
               }}
               className={`btn ${type === "INCOME" ? "bg-brand-600 text-white" : "btn-ghost"}`}
             >
-              💰 Receita
+              {tt("incomeBtn")}
             </button>
           </div>
           <div>
-            <label className="label">Valor</label>
+            <label className="label">{tt("amountLabel")}</label>
             <input
               className="input"
               type="number"
@@ -120,22 +127,22 @@ export default function ExpensesClient({
             />
           </div>
           <div>
-            <label className="label">Descrição</label>
+            <label className="label">{tt("descriptionLabel")}</label>
             <input
               className="input"
-              placeholder="Ex.: mercado, uber..."
+              placeholder={tt("descriptionPlaceholder")}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
           </div>
           <div>
-            <label className="label">Categoria</label>
+            <label className="label">{tt("categoryLabel")}</label>
             <select
               className="input"
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
             >
-              <option value="">Automática</option>
+              <option value="">{tt("categoryAuto")}</option>
               {filteredCats.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.emoji} {c.name}
@@ -145,45 +152,44 @@ export default function ExpensesClient({
           </div>
           {error && <p className="text-sm text-red-600">{error}</p>}
           <button className="btn-primary w-full" disabled={loading}>
-            {loading ? "Salvando..." : "Adicionar"}
+            {loading ? tt("addingBtn") : tt("addBtn")}
           </button>
         </form>
       </div>
 
       <div className="card">
-        <h2 className="mb-3 font-semibold">Histórico</h2>
+        <h2 className="mb-3 font-semibold">{tt("historyTitle")}</h2>
         {txns.length === 0 ? (
-          <p className="text-sm text-slate-400">Nenhum lançamento ainda.</p>
+          <p className="text-sm text-slate-400">{tt("empty")}</p>
         ) : (
           <ul className="divide-y divide-slate-100">
-            {txns.map((t) => (
-              <li key={t.id} className="group flex items-center justify-between py-2.5">
+            {txns.map((tx) => (
+              <li key={tx.id} className="group flex items-center justify-between py-2.5">
                 <div className="flex items-center gap-3">
-                  <span className="text-xl">{t.category?.emoji ?? "💸"}</span>
+                  <span className="text-xl">{tx.category?.emoji ?? "💸"}</span>
                   <div>
                     <p className="text-sm font-medium">
-                      {t.description || t.category?.name || "Lançamento"}
+                      {tx.description || tx.category?.name || tt("entryFallback")}
                     </p>
                     <p className="text-xs text-slate-400">
-                      {formatDate(t.occurredAt)} ·{" "}
-                      {t.category?.name ?? "Sem categoria"} ·{" "}
-                      {t.source === "WHATSAPP" ? "WhatsApp" : "Web"}
+                      {formatDate(tx.occurredAt, lang)} ·{" "}
+                      {tx.category?.name ?? tt("noCategory")} ·{" "}
+                      {tx.source === "WHATSAPP" ? tt("sourceWhatsapp") : tt("sourceWeb")}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <span
                     className={`text-sm font-semibold ${
-                      t.type === "INCOME" ? "text-brand-600" : "text-red-600"
+                      tx.type === "INCOME" ? "text-brand-600" : "text-red-600"
                     }`}
                   >
-                    {t.type === "INCOME" ? "+" : "-"}
-                    {formatMoney(Number(t.amount), currency)}
+                    {tx.type === "INCOME" ? "+" : "-"}
+                    {formatMoney(Number(tx.amount), currency, lang)}
                   </span>
                   <button
-                    onClick={() => remove(t.id)}
+                    onClick={() => remove(tx.id)}
                     className="text-slate-300 opacity-0 transition hover:text-red-500 group-hover:opacity-100"
-                    title="Excluir"
                   >
                     ✕
                   </button>

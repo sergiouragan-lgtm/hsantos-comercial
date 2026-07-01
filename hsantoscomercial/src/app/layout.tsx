@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { getLanguage } from "@/lib/i18n/server";
+import { isRTL } from "@/lib/i18n/config";
+import { LanguageProvider } from "@/components/LanguageProvider";
 
 export const metadata: Metadata = {
   title: "HSantos — Gastos & CRM no WhatsApp",
@@ -12,9 +15,12 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const lang = getLanguage();
   return (
-    <html lang="pt-BR">
-      <body>{children}</body>
+    <html lang={lang} dir={isRTL(lang) ? "rtl" : "ltr"}>
+      <body>
+        <LanguageProvider initialLang={lang}>{children}</LanguageProvider>
+      </body>
     </html>
   );
 }
